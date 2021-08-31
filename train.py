@@ -53,7 +53,7 @@ def AEVB(data, model, optimizer, input_dim, output_dim,epochs, batch_size):
 
             optimizer.step()
         full_loss.append(fl); kld.append(kl); recon.append(rec)
-        print(f"Epoch {epc}\tFull loss: {full_loss[-1]}")
+        print(f"Epoch {epc}\tFull loss: {full_loss[-1]}\trecon loss: {recon[-1]}\tkl_divergence: {kld[-1]}")
         
     return model, full_loss, kld, recon 
 
@@ -67,4 +67,4 @@ if __name__=="__main__":
     print(x.shape)
     #print(get_minibatch(x,32).shape)
     optimizer = Adam(model.parameters(), lr=LR)
-    AEVB(data=x,model=model,optimizer=optimizer,input_dim=x.shape[1],output_dim=x.shape[1], batch_size=BATCH_SIZE, epochs=EPOCHS).to(device)
+    (model, full, kld, recon) = AEVB(data=x,model=model,optimizer=optimizer,input_dim=x.shape[1],output_dim=x.shape[1], batch_size=BATCH_SIZE, epochs=EPOCHS)

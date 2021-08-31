@@ -50,18 +50,24 @@ class VAE(nn.Module):
         res = self.final_layer(res)
         return res
     def reparameterize(self,mu,log_var):
-        epsilon = torch.normal(mu,torch.exp(0.2 *log_var))
+        epsilon = torch.normal(mu,torch.exp(0.5 * log_var))
         return mu + log_var * epsilon
     def forward(self,x):
         mu, log_var = self.encode(x)
         norm = self.reparameterize(mu,log_var)
         res = self.decode(norm)
         return (res, x, mu,log_var)
+
+
+
     def loss_fc(self,x,*args):
         (res, x, mu, log_var) = self.forward(x)
         recon_loss = F.mse_loss(x,res)
-        KL_divergence = torch.mean(-0.5 * torch.sum((1 + 2 * log_var - mu**2 + torch.exp(log_var)),dim=1), dim=0)
+        KL_divergence = torch.mean(-0.5 * torch.sum((1 + log_var - mu**2 - torch.exp(log_var)),dim=1), dim=0)
         loss = recon_loss + KL_divergence 
         return dict({'loss': loss, 'recon_loss': recon_loss, 'kl_loss': KL_divergence})
+
+
+
     def generate(self,x):
         return self.forward(x)[0]
