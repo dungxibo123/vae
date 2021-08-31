@@ -8,6 +8,11 @@ from torch.optim import Adam
 from tqdm import tqdm
 from vae import *
 import argparse
+import numpy as np 
+
+
+
+
 device = "cuda:0"
 
 
@@ -39,7 +44,8 @@ def AEVB(data, model, optimizer, input_dim, output_dim,epochs, batch_size):
     full_loss, kld, recon = [],[],[]
     for epc in range(epochs):
         fl,kl,rec = 0,0,0
-        for _ in tqdm(range(x.shape[0] // batch_size)):
+        steps = x.shape[0] // batch_size
+        for _ in tqdm(range(steps)):
             batch = get_minibatch(x,batch_size, device)
             optimizer.zero_grad()
  
@@ -52,8 +58,9 @@ def AEVB(data, model, optimizer, input_dim, output_dim,epochs, batch_size):
             losses["loss"].backward()
 
             optimizer.step()
+        fl /= steps; kl /= steps; rec /= steps
         full_loss.append(fl); kld.append(kl); recon.append(rec)
-        print(f"Epoch {epc}\tFull loss: {full_loss[-1]}\trecon loss: {recon[-1]}\tkl_divergence: {kld[-1]}")
+        print(f"Epoch {epc + 1}\tFull loss: {full_loss[-1]}\trecon loss: {recon[-1]}\tkl_divergence: {kld[-1]}")
         
     return model, full_loss, kld, recon 
 
@@ -68,3 +75,7 @@ if __name__=="__main__":
     #print(get_minibatch(x,32).shape)
     optimizer = Adam(model.parameters(), lr=LR)
     (model, full, kld, recon) = AEVB(data=x,model=model,optimizer=optimizer,input_dim=x.shape[1],output_dim=x.shape[1], batch_size=BATCH_SIZE, epochs=EPOCHS)
+
+
+
+
