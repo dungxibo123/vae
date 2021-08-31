@@ -15,38 +15,39 @@ class VAE(nn.Module):
             @------------------@
             @return: None
         """
-        this.en = nn.Sequential(
+        super(VAE,self).__init__()
+        self.en = nn.Sequential(
             nn.Linear(input_dim,hidden_dim),
-            nn.BatchNorm1d(),
+            nn.BatchNorm1d(hidden_dim),
             nn.LeakyReLU()
         )
         self.mu = nn.Linear(hidden_dim, latent_dim)
         self.var = nn.Linear(hidden_dim,latent_dim)
         
-        this.de = nn.Sequential(
+        self.de = nn.Sequential(
             nn.Linear(latent_dim,hidden_dim),
-            nn.BatchNorm1d(),
+            nn.BatchNorm1d(hidden_dim),
             nn.LeakyReLU()
         )
 
         self.final_layer=nn.Sequential(
-            nn.Linear(hidden_dim,data_dim),
+            nn.Linear(hidden_dim,input_dim),
             nn.Sigmoid()
         )
 
         
           
     def encode(self,x):
-        x = torch.flatten(x)
-        res = this.en(x)
+        #x = torch.flatten(x)
+        res = self.en(x)
         mu = self.mu(res)
         log_var = self.var(res)
         
         return mu,log_var
             
     def decode(self,x):
-        res = this.de(x)
-        res = this.final_layer(res)
+        res = self.de(x)
+        res = self.final_layer(res)
         return res
     def reparameterize(self,mu,log_var):
         epsilon = torch.normal(mu,torch.exp(0.2 *log_var))
@@ -56,11 +57,11 @@ class VAE(nn.Module):
         norm = self.reparameterize(mu,log_var)
         res = self.decode(norm)
         return (res, x, mu,log_var)
-    def loss_fc(self,*args):
+    def loss_fc(self,x,*args):
         (res, x, mu, log_var) = self.forward(x)
         recon_loss = F.mse_loss(x,res)
         KL_divergence = torch.mean(-0.5 * torch.sum((1 + 2 * log_var - mu**2 + torch.exp(log_var)),dim=1), dim=0)
         loss = recon_loss + KL_divergence 
-        return {'loss': loss, 'Recon_loss': recon_loss, 'kl_loss': kl_loss}
+        return dict({'loss': loss, 'recon_loss': recon_loss, 'kl_loss': KL_divergence})
     def generate(self,x):
         return self.forward(x)[0]
