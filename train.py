@@ -51,9 +51,9 @@ def AEVB(data, model, optimizer, input_dim, output_dim,epochs, batch_size):
  
             losses = model.loss_fc(batch)
         
-            fl += losses["loss"]
-            kl += losses["kl_loss"]
-            rec += losses["recon_loss"] 
+            fl += losses["loss"].item() / batch_size
+            kl += losses["kl_loss"].item() / batch_size
+            rec += losses["recon_loss"].item() / batch_size
         
             losses["loss"].backward()
 
@@ -63,19 +63,3 @@ def AEVB(data, model, optimizer, input_dim, output_dim,epochs, batch_size):
         print(f"Epoch {epc + 1}\tFull loss: {full_loss[-1]}\trecon loss: {recon[-1]}\tkl_divergence: {kld[-1]}")
         
     return model, full_loss, kld, recon 
-
-
-
-if __name__=="__main__":
-    print(type(x.shape[1]) )
-    print(x)
-    print(type(HIDDEN))
-    model = VAE(x.shape[1],HIDDEN,LATENT).to(device)
-    print(x.shape)
-    #print(get_minibatch(x,32).shape)
-    optimizer = Adam(model.parameters(), lr=LR)
-    (model, full, kld, recon) = AEVB(data=x,model=model,optimizer=optimizer,input_dim=x.shape[1],output_dim=x.shape[1], batch_size=BATCH_SIZE, epochs=EPOCHS)
-
-
-
-

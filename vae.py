@@ -11,7 +11,6 @@ class VAE(nn.Module):
             @param input_dim: input dimension of the data
             @param hidden_dim: hidden dimension of the MLPs
             @param latent_dim: output dimension of MLPs
-            @param is decoder: is this module was initialized is decoder ?
             @------------------@
             @return: None
         """
@@ -19,7 +18,7 @@ class VAE(nn.Module):
         self.en = nn.Sequential(
             nn.Linear(input_dim,hidden_dim),
             nn.BatchNorm1d(hidden_dim),
-            nn.LeakyReLU()
+            nn.Tanh()
         )
         self.mu = nn.Linear(hidden_dim, latent_dim)
         self.var = nn.Linear(hidden_dim,latent_dim)
@@ -27,12 +26,11 @@ class VAE(nn.Module):
         self.de = nn.Sequential(
             nn.Linear(latent_dim,hidden_dim),
             nn.BatchNorm1d(hidden_dim),
-            nn.LeakyReLU()
+            nn.Tanh()
         )
 
         self.final_layer=nn.Sequential(
             nn.Linear(hidden_dim,input_dim),
-            nn.Sigmoid()
         )
 
         
@@ -64,7 +62,9 @@ class VAE(nn.Module):
         (res, x, mu, log_var) = self.forward(x)
         recon_loss = F.mse_loss(x,res)
         KL_divergence = torch.mean(-0.5 * torch.sum((1 + log_var - mu**2 - torch.exp(log_var)),dim=1), dim=0)
-        loss = recon_loss + KL_divergence 
+        KL_divergence.required_grad = True
+        loss = recon_loss + KL_divergence
+        
         return dict({'loss': loss, 'recon_loss': recon_loss, 'kl_loss': KL_divergence})
 
 
