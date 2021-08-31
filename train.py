@@ -30,8 +30,8 @@ if __name__=="__main__":
         device = 'cuda:0'
     encoder = VAE(data_dim=2, input_dim=img_size[0]*img_size[1], hidden_dim=200).to(device)
     decoder = VAE(data_dim=img_size[0]*img_size[1], input_dim=2, hidden_dim=200, constrain_mean=True).to(device)
-    encoder_optimizer = torch.optim.Adagrad(encoder.parameters(), lr=0.01, weight_decay=0.5)
-    decoder_optimizer = torch.optim.Adagrad(decoder.parameters(), lr=0.01)
+    encoder_optimizer = torch.optim.Adagrad(encoder.parameters(), lr=0.001, weight_decay=0.5)
+    decoder_optimizer = torch.optim.Adagrad(decoder.parameters(), lr=0.001)
 
     loss = AVEB(trainX ,encoder, decoder, encoder_optimizer, decoder_optimizer, 10**6, device=device)
     
