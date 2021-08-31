@@ -25,6 +25,7 @@ parser.add_argument('-ld','--latent',type=int, help="number of latent unit")
 parser.add_argument('-lr','--learning',type=int,help="learning rate")
 parser.add_argument('-e', '--epochs', type=int,help='epochs')
 parser.add_argument('-b', '--batch_size', type=int,help='Batch size')
+parser.add_argument('-m', '--model', help="path/to/model/saving/location")
 
 
 
@@ -37,6 +38,7 @@ LATENT = (args["latent"] if args["latent"] else 2)
 LR = (args["learning"] if args["learning"] else 1e-3)
 BATCH_SIZE = (args["batch_size"] if args["batch_size"] else 32)
 EPOCHS = (args["epochs"] if args["epochs"] else 1)
+MODEL_PATH=(args["model"] if args["model"] else "./model.pt" )
 
 x = torch.Tensor(get_data(args["data"]))
 
@@ -63,3 +65,20 @@ def AEVB(data, model, optimizer, input_dim, output_dim,epochs, batch_size):
         print(f"Epoch {epc + 1}\tFull loss: {full_loss[-1]}\trecon loss: {recon[-1]}\tkl_divergence: {kld[-1]}")
         
     return model, full_loss, kld, recon 
+
+
+if __name__=="__main__":
+    #Model 
+    model = VAE(x.shape[1],HIDDEN,LATENT).to(device)
+    
+    # Optimizer
+    optimizer = Adam(model.parameters(), lr=LR)
+    (model, full_loss, kld, recon) = AEVB(data=x,
+                                      model=model,
+                                      optimizer=optimizer,
+                                      input_dim=x.shape[1],
+                                      output_dim=x.shape[1],
+                                      batch_size=BATCH_SIZE,
+                                      epochs=EPOCHS)
+    torch.save(model,MODEL_PATH)
+

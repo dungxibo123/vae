@@ -24,22 +24,29 @@ unzip archive.zip
 
 ### Start to train the encoder and decoder
 ```shell
-python train.py [OPTIONS] [VALUE]
-usage: train.py [-h] -d DATA [-hd HIDDEN] [-ld LATENT] [-lr LEARNING] [-e EPOCHS] [-b BATCH_SIZE]
+usage: python train.py [-h] -d DATA [-hd HIDDEN] [-ld LATENT] [-lr LEARNING] [-e EPOCHS] [-b BATCH_SIZE] [-m MODEL]
 
 optional arguments:
-  -h, --help            Show this help message and exit
+  -h, --help            show this help message and exit
   -d DATA, --data DATA  path/to/train/data
   -hd HIDDEN, --hidden HIDDEN
-                        Number of hidden unit
+                        number of hidden unit
   -ld LATENT, --latent LATENT
-                        Number of latent unit
+                        number of latent unit
   -lr LEARNING, --learning LEARNING
-                        Learning rate
+                        learning rate
   -e EPOCHS, --epochs EPOCHS
-                        Epochs
+                        epochs
   -b BATCH_SIZE, --batch_size BATCH_SIZE
                         Batch size
+  -m MODEL, --model MODEL
+                        path/to/model/saving/location
 ```
 
+### After training
+```shell
+# Model class must be defined somewhere
+model = torch.load("path/to/model/file/located")
+model.eval()
+```
 

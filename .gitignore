@@ -6,6 +6,13 @@ __pycache__/
 # C extensions
 *.so
 
+
+#model extensions
+.pt
+.pth
+.h5
+.h5py
+.h5df
 #*.ipynb
 Data/
 # Distribution / packaging
